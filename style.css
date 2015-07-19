@@ -1,0 +1,202 @@
+/*
+ Theme Name:   Twenty Twelve Child (Cine-club Ulm)
+ Theme URI:    
+ Description:  Twenty Twelve Child Theme fo Cine-club Ulm
+ Author:       Léonard de Haro
+ Author URI:   
+ Template:     twentytwelve
+ Version:      1.0.0
+ Tags:         light, dark, two-columns, right-sidebar, responsive-layout, accessibility-ready
+ Text Domain:  twenty-twleve-child
+*/
+
+/*
+For older themes, and themes that do not use wp_enqueue_style() to enqueue their stylesheet, use the following line where twentyfourteen is the name of the directory where the theme resides:
+*/
+@import url("../twentytwelve/style.css");
+
+/* =Theme customization starts here
+-------------------------------------------------------------- */
+@media all and (orientation:portrait)
+{
+   body.custom-background {
+    background-size: auto 100%;
+   }
+}
+
+@media all and (orientation:landscape)
+{
+   body.custom-background {
+    background-size: 100% auto;
+   }
+}
+
+.site {
+    /* default fallback */
+    background: rgb(255, 255, 255) transparent;
+    /* nice browsers */
+    background: rgba(255, 255, 255, 0.5);
+    /* IE 6/7 */
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#7FFFFFFF, endColorstr=#7FFFFFFF);
+    /* IE8 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#7FFFFFFF, endColorstr=#7FFFFFFF)"; 
+
+}
+
+.main-navigation,
+.widget,
+.site-content {
+    /* default fallback */
+    background: rgb(255, 255, 255) transparent;
+    /* nice browsers */
+    background: rgba(255, 255, 255, 0.9);
+    /* IE 6/7 */
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#E5FFFFFF, endColorstr=#E5FFFFFF);
+    /* IE8 */
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#E5FFFFFF, endColorstr=#E5FFFFFF)"; 
+
+    box-shadow: 0 2px 6px rgba(100, 100, 100, 0.3);
+
+    padding-left: 12px;
+    padding-left: 0.857142857em;
+    padding-right: 12px;
+    padding-right: 0.857142857em;
+    padding-top: 12px;
+    padding-top: 0.857142857em;
+    padding-bottom: 12px;
+    padding-bottom: 0.857142857em;
+}
+
+#content-banner-next {
+    background-color: black;
+}
+
+@media screen and (min-width: 600px) {
+    .site-content {
+	width: 68%;
+    }
+}
+
+.my-fb-like { 
+    overflow: hidden; 
+    text-align: center;
+}
+
+/* Main posts style */
+
+.entry-header {
+    margin-top: 12px;
+    margin-top: 0.857142857em;
+    margin-bottom: 12px;
+    margin-bottom: 0.857142857em;
+}
+
+.archive-title,
+.entry-header .entry-title {
+    text-align: center;
+    color: #008080;
+    font-size: 30px;
+    font-size: 2.142857144em;
+    font-weight: bold;
+}
+
+.entry-trailer {
+    width: 85%;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top: 0;
+    text-align:center;
+}
+
+.entry-mainblock {
+}
+
+.entry-separator {
+    float: left;
+    padding-right: 6px;
+    padding-right: 1,714285714em
+}
+
+.entry-poster {
+    width:100%;
+    height:auto;
+    border:0; 
+}
+
+.entry-textinfo {
+    overflow:auto;
+    padding-left:6px;
+    padding-left: 1,714285714em;
+}
+
+.entry-break {
+    clear:both;
+    padding-bottom:6px;
+    padding-bottom: 1,714285714em;
+
+}
+
+.entry-synopsis {
+    font-style: italic;
+    text-align: justify;
+}
+
+.entry-resume {
+    text-align: center;
+}
+
+.resume-bloc {
+     text-align: center;
+     padding: 5px;
+     padding: 0.357142857em;
+     border: 1px solid grey;
+}
+
+.resume-date {
+    color: #444444; 
+    font-size: large;
+    font-weight: bold;
+}
+
+.resume-place {
+    color: #444444; 
+    font-size: medium;
+    font-weight: bold;
+}
+
+.resume-see {
+    color: #444444;
+    font-size: medium;
+}
+
+.resume-title {
+    font-size: x-large; 
+    color: #008080;
+    font-weight: bold;
+}
+
+.resume-director {
+    font-size: large; 
+    color: #008080;
+    font-weight: bold;
+}
+
+.entry-analyse h2 {
+    text-align: center;
+}
+
+.entry-analyse p {
+    text-align: justify;
+}
+
+h2 {
+    color: #008080;
+}
+
+.critic-festival {
+    text-align:center;
+}
+
+.analyse-signature {
+    text-align:right;
+}
