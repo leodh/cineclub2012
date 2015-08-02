@@ -1,5 +1,7 @@
 <?php
 
+include "film-meta.php";
+
 include "count-post-category.php";
 add_action('pre_get_posts', 'diff_post_count_per_cat');
 

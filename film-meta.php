@@ -7,23 +7,70 @@ add_action('edit_form_after_title', function() {
     unset($wp_meta_boxes[get_post_type($post)]['advanced']);
 });
 
-// 
-function cinemeta_call_mb($post_type, $post)
+/* Film informations Metabox  */
+function filmmeta_call_mb($post_type, $post)
 {
     add_meta_box(
-        'Cine Meta',
-        __('Cineclub', 'cinemeta'),
-        'cinemeta_display_mb',
+        'film-meta',
+        __('Informations du film', 'filmmeta'),
+        'filmmeta_display_mb',
         'post',
         'advanced',
         'high'
     );
 }
-add_action('add_meta_boxes', 'cinemeta_call_mb', 10, 2);
+add_action('add_meta_boxes', 'filmmeta_call_mb', 10, 2);
 
-function cinemeta_display_mb($post, $arg)
+function filmmeta_display_mb($post, $arg)
 {
-    echo '<strong>LALALALA</strong>';
+    // wp-nonce
+    wp-nonce-field('filmmeta-nonce','filmmeta-nonce')
+        
+    // Title
+    // Screening date
+
+    // Year
+    // Director
+    // Countries
+    // Duration
+    // Actors and actresses
+    // Colors or Black and White
+    
+    // Poster
+    // Trailer iframe
+
+    // Synopsis
+    // Introduction text
 }
+
+
+/* Ticket Fee  */
+function filmfee_call_mb($post_type, $post)
+{
+    add_meta_box(
+        'film-fee',
+        __('Tarifs', 'filmmeta'),
+        'filmfee_display_mb',
+        'post',
+        'side',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'filmmeta_call_mb', 10, 2);
+    
+function filmfee_display_mb($post, $args)
+{
+    // wp-nonce
+    wp-nonce-field('filmfee-nonce','filmfee-nonce')
+        
+    // Fees
+    // COF
+    // Normal
+
+    // long term COF
+    // long term normal
+    
+}
+
 
 ?>
