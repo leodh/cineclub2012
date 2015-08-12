@@ -26,18 +26,18 @@ function film_screening_display_mb($post, $args) {
     // Use nonce for verification
     wp_nonce_field( plugin_basename( __FILE__ ), 'filmscreening_nonce' );
 
-    $metadata_id = 'filmscreening';
-    $screening_values = get_post_meta($post->ID, $metadata_id, true);
-    
-    film_screening_date_display($post, array('id'=> $metadata_id));
+    $metabox_id = 'filmscreening';
+    $screening_values = get_post_meta($post->ID, $metabox_id, true);
+
+    film_screening_date_display($post, array('id'=> $metabox_id, 'screening_values' => $screening_values));
     echo '<br />';
-    film_screening_place_display($post, array('id'=> $metadata_id));
+    film_screening_place_display($post, array('id'=> $metabox_id));
     echo '<br />';
 
     $value_fee = (isset($screening_values['fee'])) ? $screening_values['fee'] : "";
     
-    echo '<label for="'. $metadata_id . '[fee]' . '">Tarifs : </label>';    
-    echo '<input type="text' . '" name="' . $metadata_id . '[fee]'
+    echo '<label for="'. $metabox_id . '[fee]' . '">Tarifs : </label>';    
+    echo '<input type="text' . '" name="' . $metabox_id . '[fee]'
                              . '" value="' . $value_fee
                              . '" size="' . '30'
                              . '"/>';    
@@ -50,7 +50,7 @@ function film_screening_date_display($post, $args) {
     global $post, $wp_locale;
 
     $time_adj = current_time( 'timestamp' );
-    $date = get_post_meta( $post->ID, $metabox_id, true );
+    $date = $args['screening_values'];
 
     $day = (isset($date['day'])) ? $date['day'] : "";
 
@@ -104,64 +104,53 @@ function film_screening_place_display($post, $args) {
     $metabox_id = $args['id'];
     global $post;
 
-    $event_location = get_post_meta( $post->ID, $metabox_id . '[place]', true );
+    $filmscreen = get_post_meta( $post->ID, $metabox_id, true );
+    $event_location = isset($filmscreen['place']) ? $filmscreen['place'] : "";
 
     echo '<label for="' . $metabox_id . '[place]'  . '">Location : </label>';
     echo '<input type="text" name="' . $metabox_id . '[place]' . '" value="' . $event_location  . '" />';
 }
 
-// Save the Metabox Data
+// Save the Screening Metabox Data
 
-// function ep_eventposts_save_meta( $post_id, $post ) {
+function film_screening_save_mb( $post_id, $post ) {
 
-//     if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-//         return;
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+        return;
 
-//     if ( !isset( $_POST['ep_eventposts_nonce'] ) )
-//         return;
+    if ( !isset( $_POST['filmscreening_nonce'] ) )
+        return;
 
-//     if ( !wp_verify_nonce( $_POST['ep_eventposts_nonce'], plugin_basename( __FILE__ ) ) )
-//         return;
+    if ( !wp_verify_nonce( $_POST['filmscreening_nonce'], plugin_basename( __FILE__ ) ) )
+        return;
 
-//     // Is the user allowed to edit the post or page?
-//     if ( !current_user_can( 'edit_post', $post->ID ) )
-//         return;
+    // Is the user allowed to edit the post or page?
+    if ( !current_user_can( 'edit_post', $post->ID ) )
+        return;
 
-//     // OK, we're authenticated: we need to find and save the data
-//     // We'll put it into an array to make it easier to loop though
+    // OK, we're authenticated: we need to find and save the data
+    // We'll put it into an array to make it easier to loop though
 
-//     $metabox_ids = array( '_start', '_end' );
+    $metabox_id = 'filmscreening';
+    $filmscreen = $_POST[$metabox_id];
 
-//     foreach ($metabox_ids as $key ) {
-//         $events_meta[$key . '_month'] = $_POST[$key . '_month'];
-//         $events_meta[$key . '_day'] = $_POST[$key . '_day'];
-//         if($_POST[$key . '_hour']<10){
-//             $events_meta[$key . '_hour'] = '0'.$_POST[$key . '_hour'];
-//         } else {
-//             $events_meta[$key . '_hour'] = $_POST[$key . '_hour'];
-//         }
-//         $events_meta[$key . '_year'] = $_POST[$key . '_year'];
-//         $events_meta[$key . '_hour'] = $_POST[$key . '_hour'];
-//         $events_meta[$key . '_minute'] = $_POST[$key . '_minute'];
-//         $events_meta[$key . '_eventtimestamp'] = $events_meta[$key . '_year'] . $events_meta[$key . '_month'] . $events_meta[$key . '_day'] . $events_meta[$key . '_hour'] . $events_meta[$key . '_minute'];
-//     }
+    if ($filmscreen['hour']<10){
+        $filmscreen['hour'] = '0' . $filmscreen['hour'];
+    }
+                
+    $timestamp = $filmscreen['year']
+               . $filmscreen['month']
+               . $filmscreen['day']
+               . $filmscreen['hour']
+               . $filmscreen['day'];
 
-//     // Add values of $events_meta as custom fields
+    $filmscreen['timestamp'] = $timestamp;
 
-//     foreach ( $events_meta as $key => $value ) { // Cycle through the $events_meta array!
-//         if ( $post->post_type == 'revision' ) return; // Don't store custom data twice
-//         $value = implode( ',', (array)$value ); // If $value is an array, make it a CSV (unlikely)
-//         if ( get_post_meta( $post->ID, $key, FALSE ) ) { // If the custom field already has a value
-//             update_post_meta( $post->ID, $key, $value );
-//         } else { // If the custom field doesn't have a value
-//             add_post_meta( $post->ID, $key, $value );
-//         }
-//         if ( !$value ) delete_post_meta( $post->ID, $key ); // Delete if blank
-//     }
+    // Add values of $events_meta as custom fields
 
-// }
-
-// add_action( 'save_post', 'ep_eventposts_save_meta', 1, 2 );
+    update_post_meta( $post->ID, $metabox_id, $filmscreen );
+}
+add_action( 'save_post', 'film_screening_save_mb', 10, 2 );
 
 /**
  * Helpers to display the date on the front end
@@ -180,18 +169,17 @@ function eventposttype_get_the_month_abbr($month) {
 
 // Display the date
 
-function eventposttype_get_the_event_date() {
-    global $post;
-    $eventdate = '';
-    $month = get_post_meta($post->ID, '_month', true);
-    $eventdate = eventposttype_get_the_month_abbr($month);
-    $eventdate .= ' ' . get_post_meta($post->ID, '_day', true) . ',';
-    $eventdate .= ' ' . get_post_meta($post->ID, '_year', true);
-    $eventdate .= ' at ' . get_post_meta($post->ID, '_hour', true);
-    $eventdate .= ':' . get_post_meta($post->ID, '_minute', true);
-    echo $eventdate;
-}
-
+// function eventposttype_get_the_event_date() {
+//     global $post;
+//     $eventdate = '';
+//     $month = get_post_meta($post->ID, '_month', true);
+//     $eventdate = eventposttype_get_the_month_abbr($month);
+//     $eventdate .= ' ' . get_post_meta($post->ID, '_day', true) . ',';
+//     $eventdate .= ' ' . get_post_meta($post->ID, '_year', true);
+//     $eventdate .= ' at ' . get_post_meta($post->ID, '_hour', true);
+//     $eventdate .= ':' . get_post_meta($post->ID, '_minute', true);
+//     echo $eventdate;
+// }
 
 // Echo an input
 function build_input_text($post, $name, $placeholder, $size="")
@@ -257,7 +245,8 @@ function film_meta_display_mb($post, $arg)
     echo '<input type="text' . '" name="' . $identifiers['duration']
                              . '" value="' . $values['duration']
                              . '" size="' . $sizes['duration']
-                             . '"/>';
+                             . '" maxsize="' . $sizes['duration']
+                             . '"/>min';
     echo '<br />';
 
     // Director
@@ -283,6 +272,7 @@ function film_meta_display_mb($post, $arg)
     echo '<input type="text' . '" name="' . $identifiers['year']
                              . '" value="' . $values['year']
                              . '" size="' . $sizes['year']
+                             . '" maxsize="' . $sizes['year']
                              . '"/>';
     echo '<br />';
     
