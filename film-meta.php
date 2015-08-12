@@ -9,7 +9,7 @@ add_action('edit_form_after_title', function() {
 
 function film_mbs() {
     // Screening informations
-    add_meta_box( 'film_screening', 'Informations Seance', 'film_seance_display_mb', 'post', 'advanced', 'high' );
+    add_meta_box( 'film_screening', 'Informations Seance', 'film_screening_display_mb', 'post', 'advanced', 'high' );
     // Movie informations
     add_meta_box('film_meta', 'Informations du film', 'film_meta_display_mb', 'post', 'advanced', 'high' );
 }
@@ -21,17 +21,20 @@ add_action( 'admin_init', 'film_mbs' );
 /* http://wpsnipp.com/index.php/functions-php/start-date-end-date-metabox-for-events-custom-post-types/# */
 /*************************************************/
 
-function film_seance_display_mb($post, $args) {
+function film_screening_display_mb($post, $args) {
 
-    $metadata_id = 'filmseance';
-    $seance_values = get_post_meta($post->ID, $metadata_id, true);
+    // Use nonce for verification
+    wp_nonce_field( plugin_basename( __FILE__ ), 'filmscreening_nonce' );
+
+    $metadata_id = 'filmscreening';
+    $screening_values = get_post_meta($post->ID, $metadata_id, true);
     
-    ept_event_date($post, array('id'=> $metadata_id));
+    film_screening_date_display($post, array('id'=> $metadata_id));
     echo '<br />';
-    ept_event_location($post, array('id'=> $metadata_id));
+    film_screening_place_display($post, array('id'=> $metadata_id));
     echo '<br />';
 
-    $value_fee = (isset($seance_values['fee'])) ? $seance_values['fee'] : "";
+    $value_fee = (isset($screening_values['fee'])) ? $screening_values['fee'] : "";
     
     echo '<label for="'. $metadata_id . '[fee]' . '">Tarifs : </label>';    
     echo '<input type="text' . '" name="' . $metadata_id . '[fee]'
@@ -42,45 +45,44 @@ function film_seance_display_mb($post, $args) {
 
 // Metabox HTML
 
-function ept_event_date($post, $args) {
+function film_screening_date_display($post, $args) {
     $metabox_id = $args['id'];
     global $post, $wp_locale;
 
-    // Use nonce for verification
-    wp_nonce_field( plugin_basename( __FILE__ ), 'ep_eventposts_nonce' );
-
     $time_adj = current_time( 'timestamp' );
-    $month = get_post_meta( $post->ID, $metabox_id . '_month', true );
+    $date = get_post_meta( $post->ID, $metabox_id, true );
 
-    if ( empty( $month ) ) {
-        $month = gmdate( 'm', $time_adj );
-    }
-
-    $day = get_post_meta( $post->ID, $metabox_id . '_day', true );
+    $day = (isset($date['day'])) ? $date['day'] : "";
 
     if ( empty( $day ) ) {
         $day = gmdate( 'd', $time_adj );
     }
 
-    $year = get_post_meta( $post->ID, $metabox_id . '_year', true );
+    $month = (isset($date['month'])) ? $date['month'] : "";
+
+    if ( empty( $month ) ) {
+        $month = gmdate( 'm', $time_adj );
+    }
+
+    $year = (isset($date['year'])) ? $date['year'] : "";
 
     if ( empty( $year ) ) {
         $year = gmdate( 'Y', $time_adj );
     }
 
-    $hour = get_post_meta($post->ID, $metabox_id . '_hour', true);
+    $hour = (isset($date['hour'])) ? $date['hour'] : "";
 
     if ( empty($hour) ) {
         $hour = gmdate( 'H', $time_adj );
     }
 
-    $min = get_post_meta($post->ID, $metabox_id . '_minute', true);
+    $min = (isset($date['minute'])) ? $date['minute'] : "";
 
     if ( empty($min) ) {
         $min = '00';
     }
 
-    $month_s = '<select name="' . $metabox_id . '_month">';
+    $month_s = '<select name="' . $metabox_id . '[month]">';
     for ( $i = 1; $i < 13; $i = $i +1 ) {
         $month_s .= "\t\t\t" . '<option value="' . zeroise( $i, 2 ) . '"';
         if ( $i == $month )
@@ -90,22 +92,22 @@ function ept_event_date($post, $args) {
     $month_s .= '</select>';
 
     echo '<label for="'. $metabox_id .'">Date et heure : </label>';
-    echo '<input type="text" name="' . $metabox_id . '_day" value="' . $day  . '" size="2" maxlength="2" />';
+    echo '<input type="text" name="' . $metabox_id . '[day]" value="' . $day  . '" size="2" maxlength="2" />';
     echo $month_s;
-    echo '<input type="text" name="' . $metabox_id . '_year" value="' . $year . '" size="4" maxlength="4" /> @ ';
-    echo '<input type="text" name="' . $metabox_id . '_hour" value="' . $hour . '" size="2" maxlength="2"/>:';
-    echo '<input type="text" name="' . $metabox_id . '_minute" value="' . $min . '" size="2" maxlength="2" />';
+    echo '<input type="text" name="' . $metabox_id . '[year]" value="' . $year . '" size="4" maxlength="4" /> @ ';
+    echo '<input type="text" name="' . $metabox_id . '[hour]" value="' . $hour . '" size="2" maxlength="2"/>:';
+    echo '<input type="text" name="' . $metabox_id . '[minute]" value="' . $min . '" size="2" maxlength="2" />';
 
 }
 
-function ept_event_location() {
+function film_screening_place_display($post, $args) {
+    $metabox_id = $args['id'];
     global $post;
-    // Use nonce for verification
-    wp_nonce_field( plugin_basename( __FILE__ ), 'ep_eventposts_nonce' );
-    // The metabox HTML
-    $event_location = get_post_meta( $post->ID, '_event_location', true );
-    echo '<label for="_event_location">Location : </label>';
-    echo '<input type="text" name="_event_location" value="' . $event_location  . '" />';
+
+    $event_location = get_post_meta( $post->ID, $metabox_id . '[place]', true );
+
+    echo '<label for="' . $metabox_id . '[place]'  . '">Location : </label>';
+    echo '<input type="text" name="' . $metabox_id . '[place]' . '" value="' . $event_location  . '" />';
 }
 
 // Save the Metabox Data
