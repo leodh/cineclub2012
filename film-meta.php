@@ -29,9 +29,11 @@ function film_screening_display_mb($post, $args) {
     $metabox_id = 'filmscreening';
     $screening_values = get_post_meta($post->ID, $metabox_id, true);
 
-    film_screening_date_display($post, array('id'=> $metabox_id, 'screening_values' => $screening_values));
+    $local_args = array('id'=> $metabox_id, 'screening_values' => $screening_values);
+    
+    film_screening_date_display($post, $local_args);
     echo '<br />';
-    film_screening_place_display($post, array('id'=> $metabox_id));
+    film_screening_place_display($post,  $local_args);
     echo '<br />';
 
     $value_fee = (isset($screening_values['fee'])) ? $screening_values['fee'] : "";
@@ -47,36 +49,37 @@ function film_screening_display_mb($post, $args) {
 
 function film_screening_date_display($post, $args) {
     $metabox_id = $args['id'];
+    $screening_values = $args['screening_values'];
+
     global $post, $wp_locale;
 
     $time_adj = current_time( 'timestamp' );
-    $date = $args['screening_values'];
 
-    $day = (isset($date['day'])) ? $date['day'] : "";
+    $day = (isset($screening_values['day'])) ? $screening_values['day'] : "";
 
     if ( empty( $day ) ) {
-        $day = gmdate( 'd', $time_adj );
+        $day = gmscreening_values( 'd', $time_adj );
     }
 
-    $month = (isset($date['month'])) ? $date['month'] : "";
+    $month = (isset($screening_values['month'])) ? $screening_values['month'] : "";
 
     if ( empty( $month ) ) {
-        $month = gmdate( 'm', $time_adj );
+        $month = gmscreening_values( 'm', $time_adj );
     }
 
-    $year = (isset($date['year'])) ? $date['year'] : "";
+    $year = (isset($screening_values['year'])) ? $screening_values['year'] : "";
 
     if ( empty( $year ) ) {
-        $year = gmdate( 'Y', $time_adj );
+        $year = gmscreening_values( 'Y', $time_adj );
     }
 
-    $hour = (isset($date['hour'])) ? $date['hour'] : "";
+    $hour = (isset($screening_values['hour'])) ? $screening_values['hour'] : "";
 
     if ( empty($hour) ) {
-        $hour = gmdate( 'H', $time_adj );
+        $hour = gmscreening_values( 'H', $time_adj );
     }
 
-    $min = (isset($date['minute'])) ? $date['minute'] : "";
+    $min = (isset($screening_values['minute'])) ? $screening_values['minute'] : "";
 
     if ( empty($min) ) {
         $min = '00';
@@ -102,10 +105,11 @@ function film_screening_date_display($post, $args) {
 
 function film_screening_place_display($post, $args) {
     $metabox_id = $args['id'];
+    $screening_values = $args['screening_values'];
+
     global $post;
 
-    $filmscreen = get_post_meta( $post->ID, $metabox_id, true );
-    $event_location = isset($filmscreen['place']) ? $filmscreen['place'] : "";
+    $event_location = isset($screening_values['place']) ? $screening_values['place'] : "";
 
     echo '<label for="' . $metabox_id . '[place]'  . '">Location : </label>';
     echo '<input type="text" name="' . $metabox_id . '[place]' . '" value="' . $event_location  . '" />';
@@ -158,14 +162,14 @@ add_action( 'save_post', 'film_screening_save_mb', 10, 2 );
 
 // Get the Month Abbreviation
 
-function eventposttype_get_the_month_abbr($month) {
-    global $wp_locale;
-    for ( $i = 1; $i < 13; $i = $i +1 ) {
-        if ( $i == $month )
-            $monthabbr = $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) );
-    }
-    return $monthabbr;
-}
+// function eventposttype_get_the_month_abbr($month) {
+//     global $wp_locale;
+//     for ( $i = 1; $i < 13; $i = $i +1 ) {
+//         if ( $i == $month )
+//             $monthabbr = $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) );
+//     }
+//     return $monthabbr;
+// }
 
 // Display the date
 
@@ -176,28 +180,18 @@ function eventposttype_get_the_month_abbr($month) {
 //     $eventdate = eventposttype_get_the_month_abbr($month);
 //     $eventdate .= ' ' . get_post_meta($post->ID, '_day', true) . ',';
 //     $eventdate .= ' ' . get_post_meta($post->ID, '_year', true);
-//     $eventdate .= ' at ' . get_post_meta($post->ID, '_hour', true);
+//     $eventdate .= ' a ' . get_post_meta($post->ID, '_hour', true);
 //     $eventdate .= ':' . get_post_meta($post->ID, '_minute', true);
 //     echo $eventdate;
 // }
-
-// Echo an input
-function build_input_text($post, $name, $placeholder, $size="")
-{
-    return '<input type="text" name="'.$name.'" value="'
-        . get_post_meta($post->ID, $name, true)
-        .'" placeholder="'.$placeholder.'" '
-        .'size="'.$size.'"'                              
-        . '/>';
-}
 
 function film_meta_display_mb($post, $arg)
 {
     // wp-nonce
     // TODO: better wp_nonce
-    wp_nonce_field('filmmeta-nonce','filmmeta-nonce');
+    wp_nonce_field(plugin_basename(__FILE__),'filmmeta_nonce');
 
-    $id_base = 'film_meta';
+    $id_base = 'filmmeta';
     
     // Identifiers
     $identifiers = array(
@@ -217,7 +211,7 @@ function film_meta_display_mb($post, $arg)
         'actoresses' => (isset($all_values['actoresses'])) ? $all_values['actoresses'] : '',
         'countries' => (isset($all_values['countries'])) ? $all_values['countries'] : '',
         'duration' => (isset($all_values['duration'])) ? $all_values['duration'] : '',
-        'colors' => (isset($all_values['colors'])) ? $all_values['duration'] : ''
+        'colors' => (isset($all_values['colors'])) ? $all_values['colors'] : ''
     );
     
     // Placeholders
@@ -227,7 +221,7 @@ function film_meta_display_mb($post, $arg)
         'actoresses' => 'Acteurs et Actrices',
         'countries' => 'Pays',
         'duration' => 'Duree',
-        'colors' => 'Couleurs ou Noir et Blanc'
+        'colors' => 'Image'
     );
 
     // Sizes
@@ -245,7 +239,7 @@ function film_meta_display_mb($post, $arg)
     echo '<input type="text' . '" name="' . $identifiers['duration']
                              . '" value="' . $values['duration']
                              . '" size="' . $sizes['duration']
-                             . '" maxsize="' . $sizes['duration']
+                             . '" maxlength="' . $sizes['duration']
                              . '"/>min';
     echo '<br />';
 
@@ -272,7 +266,7 @@ function film_meta_display_mb($post, $arg)
     echo '<input type="text' . '" name="' . $identifiers['year']
                              . '" value="' . $values['year']
                              . '" size="' . $sizes['year']
-                             . '" maxsize="' . $sizes['year']
+                             . '" maxlength="' . $sizes['year']
                              . '"/>';
     echo '<br />';
     
@@ -287,13 +281,43 @@ function film_meta_display_mb($post, $arg)
     
     // Colors or Black and White
     echo '<label for="' . $identifiers['colors']  . '">' . $labels['colors']  . ' : </label>';
-    echo '<input type="text' . '" name="' . $identifiers['colors']
-                             . '" value="' . $values['colors']
-                             . '" size="' . $sizes['colors']
-                             . '"/>';
+    echo '<input type="radio' . '" name="' . $identifiers['colors']
+                              . '" value="colors"'
+                              . checked( $values['colors'], 'colors', false)
+                              . '"/>Couleurs  ';
+    echo '<input type="radio' . '" name="' . $identifiers['colors']
+                              . '" value="blackwhite"'
+                              . checked( $values['colors'], 'blackwhite', false)
+                              . '"/>Noir et Blanc';
     echo '<br />';
 }
 
+
+// Save Film infos
+function film_metadata_save_mb( $post_id, $post ) {
+
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+        return;
+
+    if ( !isset( $_POST['filmmeta_nonce'] ) )
+        return;
+
+    if ( !wp_verify_nonce( $_POST['filmmeta_nonce'], plugin_basename( __FILE__ ) ) )
+        return;
+
+    // Is the user allowed to edit the post or page?
+    if ( !current_user_can( 'edit_post', $post->ID ) )
+        return;
+
+    // OK, we're authenticated: we need to find and save the data
+    // We'll put it into an array to make it easier to loop though
+
+    $metabox_id = 'filmmeta';
+    $filmmeta = $_POST[$metabox_id];
+
+    update_post_meta( $post->ID, $metabox_id, $filmmeta );
+}
+add_action( 'save_post', 'film_metadata_save_mb', 10, 2 );
     
     // Poster
     // Trailer iframe
