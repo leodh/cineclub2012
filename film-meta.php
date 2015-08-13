@@ -12,6 +12,8 @@ function film_mbs() {
     add_meta_box( 'film_screening', 'Informations Seance', 'film_screening_display_mb', 'post', 'advanced', 'high' );
     // Movie informations
     add_meta_box('film_meta', 'Informations du film', 'film_meta_display_mb', 'post', 'advanced', 'high' );
+    // Synopsis
+    add_meta_box('film_syno', 'Synopsis du film', 'film_synopsis_display_mb', 'post', 'advanced', 'high');
 }
 add_action( 'admin_init', 'film_mbs' );
 
@@ -29,7 +31,8 @@ function film_screening_display_mb($post, $args) {
     $metabox_id = 'filmscreening';
     $screening_values = get_post_meta($post->ID, $metabox_id, true);
 
-    $local_args = array('id'=> $metabox_id, 'screening_values' => $screening_values);
+    $local_args = array('id'=> $metabox_id,
+                        'screening_values' => $screening_values);
     
     film_screening_date_display($post, $local_args);
     echo '<br />';
@@ -319,10 +322,55 @@ function film_metadata_save_mb( $post_id, $post ) {
 }
 add_action( 'save_post', 'film_metadata_save_mb', 10, 2 );
     
-    // Poster
-    // Trailer iframe
+// Synopsis
 
-    // Synopsis
-    // Introduction text
+function film_synopsis_display_mb($post, $args) {
+    $metabox_id = 'filmsyno';
+    $syno = get_post_meta($post->ID, $metabox_id, true);
+
+    wp_nonce_field( plugin_basename( __FILE__ ), 'filmsyno_nonce' );
+    
+    echo '<textarea' . ' name="' . $metabox_id
+                     . '" placeholder="' . 'Entrer le texte du synopsis... '
+                     . '" cols="' . '75'
+                     . '" rows="' . '5'
+                     . '">' .  $syno
+                     .'</textarea>';
+
+}
+
+// Save synopsis
+function film_synopsis_save_mb( $post_id, $post ) {
+
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+        return;
+
+    if ( !isset( $_POST['filmsyno_nonce'] ) )
+        return;
+
+    if ( !wp_verify_nonce( $_POST['filmsyno_nonce'], plugin_basename( __FILE__ ) ) )
+        return;
+
+    // Is the user allowed to edit the post or page?
+    if ( !current_user_can( 'edit_post', $post->ID ) )
+        return;
+
+    // OK, we're authenticated: we need to find and save the data
+    // We'll put it into an array to make it easier to loop though
+
+    $metabox_id = 'filmsyno';
+    $filmsyno = $_POST[$metabox_id];
+
+    update_post_meta( $post->ID, $metabox_id, $filmsyno );
+}
+add_action( 'save_post', 'film_synopsis_save_mb', 10, 2 );
+
+
+// Introduction text
+
+// Poster
+// Trailer iframe
+
+
 
 ?>
