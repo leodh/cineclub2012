@@ -14,6 +14,8 @@ function film_mbs() {
     add_meta_box('film_meta', 'Informations du film', 'film_meta_display_mb', 'post', 'advanced', 'high' );
     // Synopsis
     add_meta_box('film_syno', 'Synopsis du film', 'film_synopsis_display_mb', 'post', 'advanced', 'high');
+    // Organizers
+    add_meta_box('film_partners', 'Partenaire(s)', 'film_partners_display_mb', 'post', 'advanced', 'high');
 }
 add_action( 'admin_init', 'film_mbs' );
 
@@ -366,11 +368,85 @@ function film_synopsis_save_mb( $post_id, $post ) {
 add_action( 'save_post', 'film_synopsis_save_mb', 10, 2 );
 
 
-// Introduction text
-
 // Poster
 // Trailer iframe
 
+// Partenariat
+
+function echo_partner($metabox_id, $filmpartner, $num) {
+    
+    $partner_label = $metabox_id . '[' . $num . ']' . '[partner]';
+    $partner_web_label = $metabox_id . '[' . $num .']' . '[web]';
+    
+    $partner_value = (isset($filmpartner['partner'])) ? $filmpartner['partner'] : '';
+    $partner_web_value = (isset($filmpartner['web'])) ? $filmpartner['web'] : '';
+
+    echo '<label for="' . $partner_label  . '">' . 'Partenaire'  . ' : </label>';
+    echo '<input type="text' . '" name="' . $partner_label
+                             . '" value="' . $partner_value
+                             . '" size="' . '50'
+                             . '"/>';
+    echo '<br />';
+    echo '<label for="' . $partner_web_label  . '">' . 'Site web'  . ' : </label>';
+    echo '<input type="text' . '" name="' . $partner_web_label
+                             . '" value="' . $partner_web_value
+                             . '" size="' . '50'
+                             . '"/>';
+    echo '<br />';
+    echo '<br />';
+}
+
+function film_partners_display_mb($post, $args) {
+
+    $metabox_id = 'filmpartners';
+
+    wp_nonce_field( plugin_basename( __FILE__ ), 'filmpartners_nonce' );
+    
+    $filmpartners =  get_post_meta($post->ID, $metabox_id, true);
+
+    if (!empty($filmpartners)) {
+        $num = 0;
+             foreach($filmpartners as $filmpartner) {
+                 echo_partner($metabox_id, $filmpartner, $num);
+                 $num++;
+             }
+    }
+    else {
+        echo_partner($metabox_id, array(), 0);
+    }
+
+    echo '<input type="button" class="button tagadd" id="add-' . $metabox_id  . '" value="'.esc_attr(__('More')).'">';
+
+}
+
+function film_partners_save_mb($post_id, $post){
+
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+        return;
+
+    if ( !isset( $_POST['filmpartners_nonce'] ) )
+        return;
+
+    if ( !wp_verify_nonce( $_POST['filmpartners_nonce'], plugin_basename( __FILE__ ) ) )
+        return;
+
+    // Is the user allowed to edit the post or page?
+    if ( !current_user_can( 'edit_post', $post->ID ) )
+        return;
+
+    // OK, we're authenticated: we need to find and save the data
+    // We'll put it into an array to make it easier to loop though
+
+    $metabox_id = 'filmpartners';
+    $filmpartners = $_POST[$metabox_id];
+
+    update_post_meta( $post->ID, $metabox_id, $filmpartners );    
+    
+}
+add_action( 'save_post', 'film_partners_save_mb', 10, 2 );
+
+
+// Introduction text
 
 
 ?>
