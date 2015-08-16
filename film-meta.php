@@ -12,10 +12,12 @@ function film_mbs() {
     add_meta_box( 'film_screening', 'Informations Seance', 'film_screening_display_mb', 'post', 'advanced', 'high' );
     // Movie informations
     add_meta_box('film_meta', 'Informations du film', 'film_meta_display_mb', 'post', 'advanced', 'high' );
+    // Trailer and poster
+    add_meta_box('film_visuals', 'Bande annonce et affiche', 'film_visuals_display_mb', 'post', 'advanced', 'high');
     // Synopsis
     add_meta_box('film_syno', 'Synopsis du film', 'film_synopsis_display_mb', 'post', 'advanced', 'high');
-    // Organizers
-    add_meta_box('film_partners', 'Partenaire(s)', 'film_partners_display_mb', 'post', 'advanced', 'high');
+    // Partners (on the side) TODO: CHANGE 'high'?
+    add_meta_box('film_partners', 'Partenaire(s)', 'film_partners_display_mb', 'post', 'side', 'high');
 }
 add_action( 'admin_init', 'film_mbs' );
 
@@ -367,9 +369,65 @@ function film_synopsis_save_mb( $post_id, $post ) {
 }
 add_action( 'save_post', 'film_synopsis_save_mb', 10, 2 );
 
+function film_visuals_display_mb($post, $args) {
 
-// Poster
-// Trailer iframe
+    $metabox_id = "filmvisuals";
+
+    wp_nonce_field( plugin_basename( __FILE__ ), 'filmvisuals_nonce' );
+ 
+    $filmvisuals =  get_post_meta($post->ID, $metabox_id, true);
+
+    $trailer_value = (isset($filmvisuals['trailer'])) ? $filmvisuals['trailer']  : "";
+    $trailer_label =  $metabox_id . '[trailer]';
+
+    $poster_value = (isset($filmvisuals['poster'])) ? $filmvisuals['poster'] : "";
+    $poster_label = $metabox_id . '[poster]';
+    
+    // Trailer iframe
+    echo '<label for="' . $trailer_label . '">' . 'Bande annonce'  . ' : </label>';
+    echo '<input type="text' . '" name="' . $trailer_label
+                             . '" value="' . $trailer_value
+                             . '" placeholder="' . 'Bloc HTML iframe de la bande annonce'
+                             . '" size="' . '70'
+                             . '"/>';
+    echo '<br />';
+
+    // Poster URL
+    
+    echo '<label for="' . $poster_label . '">' . 'Affiche'  . ' : </label>';
+    echo '<input type="text' . '" name="' . $poster_label
+                             . '" value="' . $poster_value
+                             . '" placeholder="' . "URL de l'affiche du film"
+                             . '" size="' . '70'
+                             . '"/>';
+    echo '<br />';
+}
+
+// Save Visuals
+function film_visuals_save_mb( $post_id, $post ) {
+
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+        return;
+
+    if ( !isset( $_POST['filmvisuals_nonce'] ) )
+        return;
+
+    if ( !wp_verify_nonce( $_POST['filmvisuals_nonce'], plugin_basename( __FILE__ ) ) )
+        return;
+
+    // Is the user allowed to edit the post or page?
+    if ( !current_user_can( 'edit_post', $post->ID ) )
+        return;
+
+    // OK, we're authenticated: we need to find and save the data
+    // We'll put it into an array to make it easier to loop though
+
+    $metabox_id = 'filmvisuals';
+    $filmvisuals = $_POST[$metabox_id];
+
+    update_post_meta( $post->ID, $metabox_id, $filmvisuals );
+}
+add_action( 'save_post', 'film_visuals_save_mb', 10, 2 );
 
 // Partenariat
 
@@ -384,13 +442,13 @@ function echo_partner($metabox_id, $filmpartner, $num) {
     echo '<label for="' . $partner_label  . '">' . 'Partenaire'  . ' : </label>';
     echo '<input type="text' . '" name="' . $partner_label
                              . '" value="' . $partner_value
-                             . '" size="' . '50'
+                             . '" size="' . '20'
                              . '"/>';
     echo '<br />';
     echo '<label for="' . $partner_web_label  . '">' . 'Site web'  . ' : </label>';
     echo '<input type="text' . '" name="' . $partner_web_label
                              . '" value="' . $partner_web_value
-                             . '" size="' . '50'
+                             . '" size="' . '20'
                              . '"/>';
     echo '<br />';
     echo '<br />';
