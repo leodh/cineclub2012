@@ -9,7 +9,9 @@ add_action('edit_form_after_title', function() {
 
 function film_mbs() {
     // Screening informations
-    add_meta_box( 'film_screening', 'Informations Seance', 'film_screening_display_mb', 'post', 'advanced', 'high' );
+    add_meta_box( 'film_screening_informations', 'Informations Seance', 'film_screening_infos_display_mb', 'post', 'advanced', 'high' );
+    // screening presentation
+    add_meta_box( 'film_screening_presentation', 'Presentation de la seance', 'film_screening_presentation_display_mb', 'post', 'advanced', 'high');
     // Movie informations
     add_meta_box('film_meta', 'Informations du film', 'film_meta_display_mb', 'post', 'advanced', 'high' );
     // Trailer and poster
@@ -27,12 +29,12 @@ add_action( 'admin_init', 'film_mbs' );
 /* http://wpsnipp.com/index.php/functions-php/start-date-end-date-metabox-for-events-custom-post-types/# */
 /*************************************************/
 
-function film_screening_display_mb($post, $args) {
+function film_screening_infos_display_mb($post, $args) {
 
     // Use nonce for verification
-    wp_nonce_field( plugin_basename( __FILE__ ), 'filmscreening_nonce' );
+    wp_nonce_field( plugin_basename( __FILE__ ), 'filmscreeninginfos_nonce' );
 
-    $metabox_id = 'filmscreening';
+    $metabox_id = 'filmscreeninginfos';
     $screening_values = get_post_meta($post->ID, $metabox_id, true);
 
     $local_args = array('id'=> $metabox_id,
@@ -65,25 +67,25 @@ function film_screening_date_display($post, $args) {
     $day = (isset($screening_values['day'])) ? $screening_values['day'] : "";
 
     if ( empty( $day ) ) {
-        $day = gmscreening_values( 'd', $time_adj );
+        $day = gmdate( 'd', $time_adj );
     }
 
     $month = (isset($screening_values['month'])) ? $screening_values['month'] : "";
 
     if ( empty( $month ) ) {
-        $month = gmscreening_values( 'm', $time_adj );
+        $month = gmdate( 'm', $time_adj );
     }
 
     $year = (isset($screening_values['year'])) ? $screening_values['year'] : "";
 
     if ( empty( $year ) ) {
-        $year = gmscreening_values( 'Y', $time_adj );
+        $year = gmdate( 'Y', $time_adj );
     }
 
     $hour = (isset($screening_values['hour'])) ? $screening_values['hour'] : "";
 
     if ( empty($hour) ) {
-        $hour = gmscreening_values( 'H', $time_adj );
+        $hour = gmdate( 'H', $time_adj );
     }
 
     $min = (isset($screening_values['minute'])) ? $screening_values['minute'] : "";
@@ -124,15 +126,15 @@ function film_screening_place_display($post, $args) {
 
 // Save the Screening Metabox Data
 
-function film_screening_save_mb( $post_id, $post ) {
+function film_screening_infos_save_mb( $post_id, $post ) {
 
     if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
         return;
 
-    if ( !isset( $_POST['filmscreening_nonce'] ) )
+    if ( !isset( $_POST['filmscreeninginfos_nonce'] ) )
         return;
 
-    if ( !wp_verify_nonce( $_POST['filmscreening_nonce'], plugin_basename( __FILE__ ) ) )
+    if ( !wp_verify_nonce( $_POST['filmscreeninginfos_nonce'], plugin_basename( __FILE__ ) ) )
         return;
 
     // Is the user allowed to edit the post or page?
@@ -142,7 +144,7 @@ function film_screening_save_mb( $post_id, $post ) {
     // OK, we're authenticated: we need to find and save the data
     // We'll put it into an array to make it easier to loop though
 
-    $metabox_id = 'filmscreening';
+    $metabox_id = 'filmscreeninginfos';
     $filmscreen = $_POST[$metabox_id];
 
     if ($filmscreen['hour']<10){
@@ -161,7 +163,7 @@ function film_screening_save_mb( $post_id, $post ) {
 
     update_post_meta( $post->ID, $metabox_id, $filmscreen );
 }
-add_action( 'save_post', 'film_screening_save_mb', 10, 2 );
+add_action( 'save_post', 'film_screening_infos_save_mb', 10, 2 );
 
 /**
  * Helpers to display the date on the front end
@@ -192,11 +194,55 @@ add_action( 'save_post', 'film_screening_save_mb', 10, 2 );
 //     echo $eventdate;
 // }
 
+// Screening presentation
+function film_screening_presentation_display_mb($post, $args) {
+
+    $metabox_id = 'filmscreeningpres';
+    $screeningpres = get_post_meta($post->ID, $metabox_id, true);
+
+    wp_nonce_field( plugin_basename( __FILE__ ), 'filmscreeningpres_nonce' );
+    
+    echo '<textarea' . ' name="' . $metabox_id
+                     . '" placeholder="' . 'Presentation de la seance. HTML autorise. '
+                     . '" cols="' . '75'
+                     . '" rows="' . '5'
+                     . '">' .  $screeningpres
+                     .'</textarea>';
+
+}
+
+// Save synopsis
+function film_screening_presentation_save_mb( $post_id, $post ) {
+
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+        return;
+
+    if ( !isset( $_POST['filmscreeningpres_nonce'] ) )
+        return;
+
+    if ( !wp_verify_nonce( $_POST['filmscreeningpres_nonce'], plugin_basename( __FILE__ ) ) )
+        return;
+
+    // Is the user allowed to edit the post or page?
+    if ( !current_user_can( 'edit_post', $post->ID ) )
+        return;
+
+    // OK, we're authenticated: we need to find and save the data
+    // We'll put it into an array to make it easier to loop though
+
+    $metabox_id = 'filmscreeningpres';
+    $filmsyno = $_POST[$metabox_id];
+
+    update_post_meta( $post->ID, $metabox_id, $filmsyno );
+}
+add_action( 'save_post', 'film_screening_presentation_save_mb', 10, 2 );
+
+
+// Film meta informations
 function film_meta_display_mb($post, $arg)
 {
     // wp-nonce
-    // TODO: better wp_nonce
-    wp_nonce_field(plugin_basename(__FILE__),'filmmeta_nonce');
+    wp_nonce_field(plugin_basename(__FILE__), 'filmmeta_nonce');
 
     $id_base = 'filmmeta';
     
@@ -442,7 +488,7 @@ function echo_partner($metabox_id, $filmpartner, $num) {
     echo '<label for="' . $partner_label  . '">' . 'Partenaire'  . ' : </label>';
     echo '<input type="text' . '" name="' . $partner_label
                              . '" value="' . $partner_value
-                             . '" size="' . '20'
+                             . '" size="' . '15'
                              . '"/>';
     echo '<br />';
     echo '<label for="' . $partner_web_label  . '">' . 'Site web'  . ' : </label>';
@@ -473,7 +519,8 @@ function film_partners_display_mb($post, $args) {
         echo_partner($metabox_id, array(), 0);
     }
 
-    echo '<input type="button" class="button tagadd" id="add-' . $metabox_id  . '" value="'.esc_attr(__('More')).'">';
+    // uncomment whem JS ready
+    // echo '<input type="button" class="button tagadd" id="add-' . $metabox_id  . '" value="'.esc_attr(__('More')).'">';
 
 }
 
