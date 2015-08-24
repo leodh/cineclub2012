@@ -53,26 +53,6 @@ function film_screening_infos_display_mb($post, $args) {
                              . '" size="' . '30'
                              . '"/>';    
     echo '<br />';
-
-    $format = (isset($screening_values['format'])) ? $screening_values['format'] : "";
-    
-    echo '<label for="'. $metabox_id . '[format]' . '">Format : </label>';    
-    echo '<input type="radio' . '" name="' .  $metabox_id . '[format]'
-                              . '" value="35mm"'
-                              . checked( $format, '35mm', false)
-                              . '"/>35mm  ';
-    echo '<input type="radio' . '" name="' .  $metabox_id . '[format]'
-                              . '" value="DVD"'
-                              . checked( $format, 'DVD', false)
-                              . '"/>DVD  ';
-    echo '<input type="radio' . '" name="' .  $metabox_id . '[format]'
-                              . '" value="BlueRay"'
-                              . checked( $format, 'BlueRay', false)
-                              . '"/>BlueRay  ';
-    echo '<input type="radio' . '" name="' .  $metabox_id . '[format]'
-                              . '" value="numeric"'
-                              . checked( $format, 'numeric', false)
-                              . '"/>Fichier Numerique  ';
 }
 
 // Metabox HTML
@@ -283,7 +263,8 @@ function film_meta_display_mb($post, $arg)
         'actoresses' => $id_base . '[actoresses]',
         'countries' => $id_base . '[countries]',
         'duration' => $id_base . '[duration]',
-        'colors' => $id_base . '[colors]'
+        'colors' => $id_base . '[colors]',
+        'format' => $id_base . '[format]'
     );
     
     // Values
@@ -294,17 +275,19 @@ function film_meta_display_mb($post, $arg)
         'actoresses' => (isset($all_values['actoresses'])) ? $all_values['actoresses'] : '',
         'countries' => (isset($all_values['countries'])) ? $all_values['countries'] : '',
         'duration' => (isset($all_values['duration'])) ? $all_values['duration'] : '',
-        'colors' => (isset($all_values['colors'])) ? $all_values['colors'] : ''
+        'colors' => (isset($all_values['colors'])) ? $all_values['colors'] : '',
+        'format' => (isset($all_values['format'])) ? $all_values['format'] : ''
     );
     
-    // Placeholders
+    // Labels
     $labels = array(
         'year' => "Annee",
         'director' => "Realisateur/trice(s)",
         'actoresses' => 'Acteurs et Actrices',
         'countries' => 'Pays',
         'duration' => 'Duree',
-        'colors' => 'Image'
+        'colors' => 'Image',
+        'format' => 'Format'
     );
 
     // Sizes
@@ -313,8 +296,9 @@ function film_meta_display_mb($post, $arg)
         'director' => "50",
         'actoresses' => '75',
         'countries' => '50',
-        'duration' => '4',
-        'colors' => '50'
+        'duration' => '4'
+        // colors: radio input
+        // fomat: radio input
     );
 
     // Duration
@@ -327,7 +311,6 @@ function film_meta_display_mb($post, $arg)
     echo '<br />';
 
     // Director
-    
     echo '<label for="' . $identifiers['director']  . '">' . $labels['director']  . ' : </label>';
     echo '<input type="text' . '" name="' . $identifiers['director']
                              . '" value="' . $values['director']
@@ -336,7 +319,6 @@ function film_meta_display_mb($post, $arg)
     echo '<br />';
     
     // Actors and actresses
-    
     echo '<label for="' . $identifiers['actoresses']  . '">' . $labels['actoresses'] . ' : </label>';
     echo '<input type="text' . '" name="' . $identifiers['actoresses']
                              . '" value="' . $values['actoresses']
@@ -354,7 +336,6 @@ function film_meta_display_mb($post, $arg)
     echo '<br />';
     
     // Countries
-    
     echo '<label for="' . $identifiers['countries']  . '">' . $labels['countries']  . ' : </label>';
     echo '<input type="text' . '" name="' . $identifiers['countries']
                              . '" value="' . $values['countries']
@@ -373,6 +354,27 @@ function film_meta_display_mb($post, $arg)
                               . checked( $values['colors'], 'blackwhite', false)
                               . '"/>Noir et Blanc';
     echo '<br />';
+
+    // Format       
+    echo '<label for="'. $identifiers['format'] . '">' . $labels['format']  . ' : </label>';    
+    echo '<input type="radio' . '" name="' . $identifiers['format']
+                              . '" value="35mm"'
+                              . checked( $values['format'], '35mm', false)
+                              . '"/>35mm  ';
+    echo '<input type="radio' . '" name="' . $identifiers['format']
+                              . '" value="DVD"'
+                              . checked( $values['format'], 'DVD', false)
+                              . '"/>DVD  ';
+    echo '<input type="radio' . '" name="' . $identifiers['format']
+                              . '" value="BlueRay"'
+                              . checked( $values['format'], 'BlueRay', false)
+                              . '"/>BlueRay  ';
+    echo '<input type="radio' . '" name="' . $identifiers['format']
+                              . '" value="numeric"'
+                              . checked( $values['format'], 'numeric', false)
+                              . '"/>Fichier Numerique  ';
+
+
 }
 
 
