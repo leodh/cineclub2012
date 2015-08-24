@@ -52,6 +52,27 @@ function film_screening_infos_display_mb($post, $args) {
                              . '" value="' . $value_fee
                              . '" size="' . '30'
                              . '"/>';    
+    echo '<br />';
+
+    $format = (isset($screening_values['format'])) ? $screening_values['format'] : "";
+    
+    echo '<label for="'. $metabox_id . '[format]' . '">Format : </label>';    
+    echo '<input type="radio' . '" name="' .  $metabox_id . '[format]'
+                              . '" value="35mm"'
+                              . checked( $format, '35mm', false)
+                              . '"/>35mm  ';
+    echo '<input type="radio' . '" name="' .  $metabox_id . '[format]'
+                              . '" value="DVD"'
+                              . checked( $format, 'DVD', false)
+                              . '"/>DVD  ';
+    echo '<input type="radio' . '" name="' .  $metabox_id . '[format]'
+                              . '" value="BlueRay"'
+                              . checked( $format, 'BlueRay', false)
+                              . '"/>BlueRay  ';
+    echo '<input type="radio' . '" name="' .  $metabox_id . '[format]'
+                              . '" value="numeric"'
+                              . checked( $format, 'numeric', false)
+                              . '"/>Fichier Numerique  ';
 }
 
 // Metabox HTML
@@ -103,6 +124,8 @@ function film_screening_date_display($post, $args) {
     }
     $month_s .= '</select>';
 
+    //     echo 'Timestamp: ' . date_i18n("l j F Y, H:i", $screening_values['timestamp']) . '<br/>'; 
+
     echo '<label for="'. $metabox_id .'">Date et heure : </label>';
     echo '<input type="text" name="' . $metabox_id . '[day]" value="' . $day  . '" size="2" maxlength="2" />';
     echo $month_s;
@@ -151,12 +174,19 @@ function film_screening_infos_save_mb( $post_id, $post ) {
         $filmscreen['hour'] = '0' . $filmscreen['hour'];
     }
                 
-    $timestamp = $filmscreen['year']
+    /* $timestamp = $filmscreen['year']
                . $filmscreen['month']
                . $filmscreen['day']
                . $filmscreen['hour']
                . $filmscreen['day'];
-
+    */
+    $year = $filmscreen['year'];
+    $month = $filmscreen['month'];
+    $day = $filmscreen['day'];
+    $hour = $filmscreen['hour'];
+    $min = $filmscreen['minute'];
+    $timestamp = mktime($hour, $min, 0, $month, $day, $year);
+    
     $filmscreen['timestamp'] = $timestamp;
 
     // Add values of $events_meta as custom fields
@@ -519,7 +549,7 @@ function film_partners_display_mb($post, $args) {
         echo_partner($metabox_id, array(), 0);
     }
 
-    // uncomment whem JS ready
+    // Uncomment whem JS ready
     // echo '<input type="button" class="button tagadd" id="add-' . $metabox_id  . '" value="'.esc_attr(__('More')).'">';
 
 }
